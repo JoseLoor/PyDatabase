@@ -5,86 +5,82 @@ import pandas as pd
 from dotenv import load_dotenv
 from mysql.connector import errorcode
 
+import functions as func
+
 load_dotenv()
 
-data = pd.read_csv("test_dataset_for_yahia.csv")
+# DELETE FROM excelnellie.test4 WHERE test4_id= 30;
 
-mydb = mysql.connector.connect(host=os.getenv("DB_HOST"),   
+data = pd.read_csv("test_dataset_for_yahia.csv") # CSV where we are getting the data
+
+exitStatement = True
+
+mydb = mysql.connector.connect(host=os.getenv("DB_HOST"),   # Connect to the database
                                 user=os.getenv("DB_USER"),   
                                 passwd=os.getenv("DB_PASSWORD"),
-                                 database = os.getenv("DB_DATABASE"),
+                                database = os.getenv("DB_DATABASE"),
                                 auth_plugin=os.getenv("DB_AUTHPLUGIN"))  
 
-print(mydb)
+counter = 1
+wait = ""
 
+testString = "works"
 
-# print(data["experiment"][0])
+Prompts = func.Prompts() # Creates object Prompts
+Hola = func.Placeholder(mydb, wait, wait) # Creates object Hola
 
-# checkIfExists = f"""IF EXISTS (SELECT* FROM INFORMATION_SCHEMA.TABLES
-#                 WHERE size = )
-#     BEGIN
-#         drop table test3
-#     END
-#     """
+print(Prompts.WelcomeMessage() + " " + str(mydb.is_connected()))
 
-# checkIfExists = f"""IF EXISTS (SELECT* FROM INFORMATION_SCHEMA.TABLES)
-#     BEGIN
-#         drop table test3
-#     END
-                    
-#     ELSE 
-                    
-#     BEGIN
-#         CREATE TABLE excelnellie.test3 (
-#     {data.columns[0]} varchar(50),
-#     {data.columns[1]} varchar(50),
-#     {data.columns[2]} varchar(50),
-#     {data.columns[3]} varchar(50),
-#     {data.columns[4]} varchar(50),
-#     {data.columns[5]} varchar(50),
-#     {data.columns[6]} varchar(50),
-#     {data.columns[7]} varchar(50)
-# );"""
+while exitStatement:
+    UserInput = input (Prompts.menu() + "\n")
+    if UserInput == '1':
+        nameOfTable = input ("Name of new table: ")
+        Hola.createTable(data, nameOfTable)
+        print(Prompts.successful())
 
-# createTable = f"""CREATE TABLE excelnellie.test3 (
-#     {data.columns[0]} varchar(50),
-#     {data.columns[1]} varchar(50),
-#     {data.columns[2]} varchar(50),
-#     {data.columns[3]} varchar(50),
-#     {data.columns[4]} varchar(50),
-#     {data.columns[5]} varchar(50),
-#     {data.columns[6]} varchar(50),
-#     {data.columns[7]} varchar(50)
-# );"""
+    elif UserInput == '2':
+        nameToInsert = input ("In which table do you want to insert the data?\n")
+        numberToInsert = input ("How many rows?\n")
+        InsertFuncs = func.Placeholder(mydb, nameToInsert, wait) # Initilize object to insert funcs
+        for row in range(int(numberToInsert)): # Iterates through csv file
+            params = []
+            for columns in data.columns:
+                params.append(data[columns][row])
+            InsertFuncs.fullInsert(params, data, nameToInsert) # Function to insert data 
+            print("row " + str(row + 1) + " inserted")    
+        print("\n")
+        print(Prompts.successful())
 
-value = "INSERT INTO excelnellie.test1 (combo) values (9)"
+    elif UserInput == '3':
+        nameToDelete = input ("In which table do you want to delete data?\n")
+        UserInputDel = input("1. Delete in a range\n2. Delete specific rows\n")
+        DeleteFuncs = func.Placeholder(mydb, nameToDelete, wait) # Initilize object to delete funcs
+        if UserInputDel == '1':
+            rangeDel1 = input ("Please input the first number for the range: ")
+            rangeDel2 = input ("Please input the second number for the range: ")
+            rango = [int(rangeDel1), int(rangeDel2)]
+            DeleteFuncs.deleteData(rango, wait, nameToDelete)
+            print("\n")
+            print(Prompts.successful())
+        elif UserInputDel == '2':
+            x = list(map(int, input("Please enter the rows that want to be deleted: ").split())) 
+            lenght = len(x)
+            DeleteFuncs.deleteDataSpec(wait, nameToDelete, lenght, x)
+            print("\n")
+            print(Prompts.successful())
 
-mycursor = mydb.cursor()
-mycursor.execute(value)
-mydb.commit()
+    elif UserInput == '4':
+        query = input ("Please input query: \n")
+        mycursor = mydb.cursor()
+        mycursor.execute(query)
+        mydb.commit()
+        print("\n")
+        print(Prompts.successful())
 
-result=mycursor.execute("select * from excelnellie.test1")
+    elif UserInput == '5':
+        Hola.closeCursor()
+        mydb.close()
+        exitStatement = False
 
-for row in mycursor.fetchall():
-    print (row)
-
-mycursor.close()
-mydb.close()
-
-# def insertData(mydb, params):
-#     mycursor = mydb.cursor()
-#     mycursor.execute(f"INSERT INTO excelnellie.test1 (combo) values ({params[1]})")
-#     mydb.commit()
-
-# for row in range(10):
-#     tempList = []
-#     for columns in data.columns:
-#         tempList.append(data[columns][row])
-#     # print(tempList)
-#     insertData(mydb, tempList)
-
-# mycursor = mydb.cursor()
-
-# mycursor.execute(checkIfExists)
-
-# print (data.loc[0,:])
+    else:
+        print ("Invalid input")
