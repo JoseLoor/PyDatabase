@@ -9,7 +9,7 @@ import functions as func
 
 load_dotenv()
 
-# DELETE FROM excelnellie.test4 WHERE test4_id= 30;
+# DELETE FROM excelnellie.test5 WHERE test5_id= 30;
 
 data = pd.read_csv("test_dataset_for_yahia.csv") # CSV where we are getting the data
 
@@ -72,10 +72,13 @@ while exitStatement:
     elif UserInput == '4':
         query = input ("Please input query: \n")
         mycursor = mydb.cursor()
-        mycursor.execute(query)
-        mydb.commit()
-        print("\n")
-        print(Prompts.successful())
+        try:
+            mycursor.execute(query)
+            mydb.commit()
+            print("\n")
+            print(Prompts.successful())
+        except:
+            print("\n------Error in the query, Please try again------\n")
 
     elif UserInput == '5':
         Hola.closeCursor()

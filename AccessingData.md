@@ -16,6 +16,12 @@ Then, to create the virtual environment in your project you need to run:
 virtualenv venv  
 ```
 
+Now we need to grant windows permission to run scripts. We do this, run Windows PowerShell as administrator and input the following commands:
+
+```bash
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+```
+
 Finally, every time you are going to start working, the virtual environment needs to be initialized with the following command
 
 ```bash
@@ -138,3 +144,4 @@ mydb = mysql.connector.connect(host=os.getenv("DB_HOST"),
                                 auth_plugin=os.getenv("DB_AUTHPLUGIN")) 
 ```
 
+Follow TUI instruction to modify database
