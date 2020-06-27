@@ -5,6 +5,62 @@ import pandas as pd
 from dotenv import load_dotenv
 from mysql.connector import errorcode
 
+data = pd.read_csv("test_dataset_for_yahia.csv") # CSV where we are getting the data
+
+headerList = ['index', 
+        data.columns[0],
+        data.columns[1],
+        data.columns[2],
+        data.columns[3],
+        data.columns[4],
+        data.columns[5],
+        data.columns[6],
+        data.columns[7],
+        data.columns[8],
+        data.columns[9],
+        data.columns[10],
+        data.columns[11],
+        data.columns[12],
+        data.columns[13],
+        data.columns[14],
+        data.columns[15],
+        data.columns[16],
+        data.columns[17],
+        data.columns[18],
+        data.columns[19],
+        data.columns[20],
+        data.columns[21],
+        data.columns[22],
+        data.columns[23],
+        data.columns[24],
+        data.columns[25],
+        data.columns[26],
+        data.columns[27],
+        data.columns[28],
+        data.columns[29],
+        data.columns[30],
+        data.columns[31],
+        data.columns[32],
+        data.columns[33],
+        data.columns[34],
+        data.columns[35],
+        data.columns[36],
+        data.columns[37],
+        data.columns[38],
+        data.columns[39],
+        data.columns[40],
+        data.columns[41],
+        data.columns[42],
+        data.columns[43],
+        data.columns[44],
+        data.columns[45],
+        data.columns[46],
+        data.columns[47],
+        data.columns[48],
+        data.columns[49],
+        data.columns[50],
+        data.columns[51]]
+
 class Placeholder:
     def __init__(self, mydb, nameToInsert, nameToDelete):
         if (mydb.is_connected()): # if connected to a database, initialize variables
@@ -28,6 +84,26 @@ class Placeholder:
         for i in range(0,lenght):
             mycursor.execute(f"DELETE FROM excelnellie.{nameToDelete} WHERE {nameToDelete}_id= {x[i]};")
             mydb.commit()
+
+    def fetchAll(self): # Print database
+        mycursor = self.mycursor
+        mydb = self.mydb
+        mycursor.execute(f"SELECT * FROM excelnellie.test2;")
+        myresult = mycursor.fetchall()
+        mydb.commit()
+        print(myresult[5])
+        # for x in myresult:
+        #     print(x)
+
+    def createCSV(self): # List to CSV file
+        mycursor = self.mycursor
+        mydb = self.mydb
+        mycursor.execute(f"SELECT * FROM excelnellie.test2 WHERE data_width = 128;")
+        myresult = mycursor.fetchall()
+        mydb.commit()
+        df = pd.DataFrame(myresult)
+        df.to_csv('test1.csv', index = False, header=headerList)
+
 
     def closeCursor(self):
         self.mycursor.close()
@@ -214,7 +290,7 @@ class Prompts:
         pass
 
     def menu(self):
-        return ("1. Create table\n2. Insert data\n3. Delete data\n4. Custom query\n5. Exit")
+        return ("1. Create table\n2. Insert data\n3. Delete data\n4. Custom query\n5. Exit\n6. Preview data\n7. Generate CSv")
 
     def successful(self):
         return ("------Database modified correctly------\n")

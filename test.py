@@ -85,5 +85,11 @@ while exitStatement:
         mydb.close()
         exitStatement = False
 
+    elif UserInput == '6':
+        Hola.fetchAll()
+
+    elif UserInput == '7':
+        Hola.createCSV()
+
     else:
         print ("Invalid input")
